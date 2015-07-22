@@ -152,7 +152,11 @@ DLLEXPORT void jl_close_uv(uv_handle_t *handle)
     }
 
     if (handle->type == UV_NAMED_PIPE || handle->type == UV_TCP) {
+#ifdef _OS_WINDOWS_
+        if (((uv_stream_t*)handle)->stream.conn.shutdown_req) {
+#else
         if (((uv_stream_t*)handle)->shutdown_req) {
+#endif
             // don't close the stream while attempting a graceful shutdown
             return;
         }
