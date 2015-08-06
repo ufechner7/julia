@@ -229,13 +229,45 @@ a normal value:
 
 Using an index less than 1 or greater than ``end`` raises an error::
 
-    julia> str[0]
-    ERROR: BoundsError()
-     in getindex at /Users/sabae/src/julia/usr/lib/julia/sys.dylib (repeats 2 times)
+.. doctest::
 
+    julia> str[0]
+    ERROR: BoundsError: attempt to access 14-element Array{UInt8,1}:
+     0x48
+     0x65
+     0x6c
+     0x6c
+     0x6f
+     0x2c
+     0x20
+     0x77
+     0x6f
+     0x72
+     0x6c
+     0x64
+     0x2e
+     0x0a
+      at index [0]
+     in getindex at ./ascii.jl:13
+    
     julia> str[end+1]
-    ERROR: BoundsError()
-     in getindex at /Users/sabae/src/julia/usr/lib/julia/sys.dylib (repeats 2 times)
+    ERROR: BoundsError: attempt to access 14-element Array{UInt8,1}:
+     0x48
+     0x65
+     0x6c
+     0x6c
+     0x6f
+     0x2c
+     0x20
+     0x77
+     0x6f
+     0x72
+     0x6c
+     0x64
+     0x2e
+     0x0a
+      at index [15]
+     in getindex at ./ascii.jl:13
 
 You can also extract a substring using range indexing:
 
@@ -718,6 +750,7 @@ For example::
 
 Numbered capture groups can also be referenced as ``\g<n>`` for disambiguation,
 as in::
+
     julia> replace("a", r".", "\g<0>1")
     julia> a1
 
