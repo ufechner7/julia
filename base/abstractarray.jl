@@ -139,18 +139,24 @@ end
 # Prevent allocation of a GC frame by hiding the BoundsError in a noinline function
 throw_boundserror(A, I) = (@_noinline_meta; throw(BoundsError(A, I)))
 
-checkbounds(A::AbstractArray, I) = (@_inline_meta; in_bounds(length(A), I) || throw_boundserror(A, I))
-function checkbounds(A::AbstractMatrix, I, J)
+# Just like getindex, we only define checkbounds(A::AbstractArray, I...) to
+# make extending it without ambiguities easier:
+function checkbounds(A::AbstractArray, I...)
+    @_inline_meta
+    _internal_checkbounds(A, I...)
+end
+_internal_checkbounds(A::AbstractArray, I) = (@_inline_meta; in_bounds(length(A), I) || throw_boundserror(A, I))
+function _internal_checkbounds(A::AbstractMatrix, I, J)
     @_inline_meta
     (in_bounds(size(A,1), I) && in_bounds(size(A,2), J)) ||
         throw_boundserror(A, (I, J))
 end
-function checkbounds(A::AbstractArray, I, J)
+function _internal_checkbounds(A::AbstractArray, I, J)
     @_inline_meta
     (in_bounds(size(A,1), I) && in_bounds(trailingsize(A,Val{2}), J)) ||
         throw_boundserror(A, (I, J))
 end
-@generated function checkbounds(A::AbstractArray, I...)
+@generated function _internal_checkbounds(A::AbstractArray, I...)
     meta = Expr(:meta, :inline)
     N = length(I)
     Isplat = [:(I[$d]) for d=1:N]
@@ -161,12 +167,12 @@ end
 end
 
 ## Bounds-checking without errors; simply return true or false ##
-in_bounds(sz, i) = throw(ArgumentError("unable to check bounds for indices of type $(typeof(i))"))
-in_bounds(sz, i::Real) = 1 <= i <= sz
-in_bounds(sz, ::Colon) = true
-in_bounds(sz, r::Range) = (@_inline_meta; isempty(r) || (in_bounds(sz, minimum(r)) && in_bounds(sz,maximum(r))))
-in_bounds(sz, I::AbstractVector{Bool}) = length(I) == sz
-function in_bounds(sz, I::AbstractArray)
+in_bounds(sz::Integer, i) = throw(ArgumentError("unable to check bounds for indices of type $(typeof(i))"))
+in_bounds(sz::Integer, i::Real) = 1 <= i <= sz
+in_bounds(sz::Integer, ::Colon) = true
+in_bounds(sz::Integer, r::Range) = (@_inline_meta; isempty(r) || (in_bounds(sz, minimum(r)) && in_bounds(sz,maximum(r))))
+in_bounds(sz::Integer, I::AbstractArray{Bool}) = length(I) == sz
+function in_bounds(sz::Integer, I::AbstractArray)
     @_inline_meta
     b = true
     for i in I
