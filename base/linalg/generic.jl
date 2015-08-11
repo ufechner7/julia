@@ -103,21 +103,33 @@ function generic_vecnorm1(x)
     return convert(T, sum)
 end
 
-function generic_vecnorm2(x)
-    maxabs = vecnormInf(x)
-    (maxabs == 0 || isinf(maxabs)) && return maxabs
-    s = start(x)
-    (v, s) = next(x, s)
-    T = typeof(maxabs)
-    scale::promote_type(Float64, T) = 1/maxabs
-    y = norm(v)*scale
-    sum::promote_type(Float64, T) = y*y
-    while !done(x, s)
-        (v, s) = next(x, s)
-        y = norm(v)*scale
-        sum += y*y
+function generic_vecnorm2(n, scale, ssq, x)
+    @inbounds for i = 1:n
+        if x[i] != 0
+            absxi = norm(x[i])
+            if scale < absxi
+                ssq = 1 + ssq*(scale/absxi)^2
+                scale = absxi
+            else
+                ssq = ssq + (absxi/scale)^2
+            end
+        end
     end
-    return convert(T, maxabs * sqrt(sum))
+    return scale * sqrt(ssq)
+end
+function generic_vecnorm2{T<:Number}(x::AbstractVector{T})
+    scale = zero(norm(zero(T)))
+    ssq = one(sqrt((abs2(norm(zero(T))) + abs2(norm(zero(T))))/2))
+    return generic_vecnorm2(length(x), scale, ssq, x)
+end
+function generic_vecnorm2(x)
+    n = length(x)
+    if n == 0
+        throw(ArgumentError("input must either be an AbstractVector{T<:Number} or non-empty"))
+    end
+    scale = zero(norm(x[1]))
+    ssq = one(sqrt((abs2(norm(zero(x[1]))) + abs2(norm(zero(x[1]))))/2))
+    return generic_vecnorm2(n, scale, ssq, x)
 end
 
 # Compute L_p norm ‖x‖ₚ = sum(abs(x).^p)^(1/p)
@@ -130,11 +142,10 @@ function generic_vecnormp(x, p)
         (v, s) = next(x, s)
         T = typeof(maxabs)
         spp::promote_type(Float64, T) = p
-        scale::promote_type(Float64, T) = 1/maxabs
-        ssum::promote_type(Float64, T) = (norm(v)*scale)^spp
+        ssum::promote_type(Float64, T) = (norm(v)/maxabs)^spp
         while !done(x, s)
             (v, s) = next(x, s)
-            ssum += (norm(v)*scale)^spp
+            ssum += (norm(v)/maxabs)^spp
         end
         return convert(T, maxabs * ssum^inv(spp))
     else # -1 ≤ p ≤ 1, no need for rescaling
