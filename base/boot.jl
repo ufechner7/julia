@@ -212,15 +212,12 @@ end
 abstract AbstractString
 abstract DirectIndexString <: AbstractString
 
-immutable ASCIIString <: DirectIndexString
-    data::Array{UInt8,1}
-end
-
 immutable UTF8String <: AbstractString
     data::Array{UInt8,1}
 end
 
-typealias ByteString Union{ASCIIString,UTF8String}
+typealias ASCIIString UTF8String
+typealias ByteString UTF8String
 
 abstract Exception
 immutable BoundsError        <: Exception
