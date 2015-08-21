@@ -116,17 +116,13 @@ include("task.jl")
 include("lock.jl")
 include("show.jl")
 
-ccall(:puts, Cint, (Ptr{UInt8},), "iuwer")
-string(:UV_ASYNC)
-ccall(:puts, Cint, (Ptr{UInt8},), "sdf")
-@assert 
-ccall(:puts, Cint, (Ptr{UInt8},), string(length(string(:UV_ASYNC).data)))
+ccall(:puts, Cint, (Ptr{UInt8},), "AAA")
+length(string(:UV_ASYNC).data) == 8 || barf
+ccall(:puts, Cint, (Ptr{UInt8},), "BBB")
+typeof(string(:UV_ASYNC).data) == UTF8String || hurl
+ccall(:puts, Cint, (Ptr{UInt8},), "CCC")
 lcascii(string(:UV_ASYNC))
-ccall(:puts, Cint, (Ptr{UInt8},), "asfg")
-"_sizeof_"*lcascii(string(:UV_ASYNC))
-ccall(:puts, Cint, (Ptr{UInt8},), "zxciou")
-symbol("_sizeof_"*lcascii(string(:UV_ASYNC)))
-ccall(:puts, Cint, (Ptr{UInt8},), "weiruy")
+ccall(:puts, Cint, (Ptr{UInt8},), "DDD")
 
 include("stream.jl")
 include("socket.jl")
