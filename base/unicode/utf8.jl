@@ -348,7 +348,7 @@ function ucascii(s::UTF8String)
         if 0x61 <= d[i] <= 0x7a
             td = copy(d)
             for j = i:length(td)
-                if 0x61 <= td[i] <= 0x7a
+                if 0x61 <= td[j] <= 0x7a
                     td[j] -= 32
                 end
             end
@@ -372,4 +372,13 @@ function lcascii(s::UTF8String)
         end
     end
     return s
+end
+
+function lcascii!(d::AbstractArray{UInt8})
+    for i = 1:length(d)
+        if 0x41 <= d[i] <= 0x5a
+            d[i] += 32
+        end
+    end
+    return d
 end

@@ -15,7 +15,7 @@ eval(m,x) = Core.eval(m,x)
 
 include("exports.jl")
 
-if false
+if true
     # simple print definitions for debugging. enable these if something
     # goes wrong during bootstrap before printing code is available.
     show(x::ANY) = ccall(:jl_static_show, Void, (Ptr{Void}, Any),
@@ -116,13 +116,16 @@ include("task.jl")
 include("lock.jl")
 include("show.jl")
 
-ccall(:puts, Cint, (Ptr{UInt8},), "AAA")
-length(string(:UV_ASYNC).data) == 8 || barf
-ccall(:puts, Cint, (Ptr{UInt8},), "BBB")
-typeof(string(:UV_ASYNC).data) == UTF8String || hurl
-ccall(:puts, Cint, (Ptr{UInt8},), "CCC")
-lcascii(string(:UV_ASYNC))
-ccall(:puts, Cint, (Ptr{UInt8},), "DDD")
+let s = string(:HELLO)
+    println("AAA")
+    println(s)
+    println(typeof(s))
+    println(typeof(s.data))
+    println(typeof(s.data.data))
+    lcascii!(s.data.data)
+    println(s)
+    println("ZZZ")
+end
 
 include("stream.jl")
 include("socket.jl")
