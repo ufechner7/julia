@@ -45,10 +45,10 @@ function uv_sizeof_req(req)
 end
 
 for h in uv_handle_types
-@eval const $(symbol("_sizeof_"*lowercase(string(h)))) = uv_sizeof_handle($h)
+@eval const $(symbol("_sizeof_"*lcascii(string(h)))) = uv_sizeof_handle($h)
 end
 for r in uv_req_types
-@eval const $(symbol("_sizeof_"*lowercase(string(r)))) = uv_sizeof_req($r)
+@eval const $(symbol("_sizeof_"*lcascii(string(r)))) = uv_sizeof_req($r)
 end
 
 nb_available(s::AsyncStream) = nb_available(s.buffer)
