@@ -50,5 +50,11 @@ debug && println("Generalized svd")
     β = svdfact(α)
     @test β[:S] == [abs(α)]
     @test svdvals(α) == abs(α)
-
+    u,v,q,d1,d2,r0 = svd(a,a_svd)
+    @test_approx_eq u gsvd[:U]
+    @test_approx_eq v gsvd[:V]
+    @test_approx_eq d1 gsvd[:D1]
+    @test_approx_eq d2 gsvd[:D2]
+    @test_approx_eq q gsvd[:Q]
+    @test_approx_eq gsvd[:a].^2 + gsvd[:b].^2 ones(length(gsvd[:a]))
 end
