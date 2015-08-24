@@ -15,6 +15,14 @@ let A1 = randn(4,4) + im*randn(4,4)
     A2 = A1 + A1'
     @test_approx_eq expm(A2) expm(Hermitian(A2))
     @test_approx_eq logm(A2) logm(Hermitian(A2))
+    A3 = A1 * A1' # posdef
+    @test_approx_eq expm(A3) expm(Hermitian(A3))
+    @test_approx_eq logm(A3) logm(Hermitian(A3))
+end
+
+let A1 = randn(4,4)
+    A4 = A1 + A1.'
+    @test_approx_eq expm(A4) expm(Symmetric(A4))
 end
 
 let n=10
